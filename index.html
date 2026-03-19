@@ -749,30 +749,56 @@ const CHAPTERS = [
 ];
 
 /* ── STATE ── */
-let allFiles      = [];   // flat list, used by lightbox
-let lightboxIndex = 0;
+let chapterFiles       = [];   // per-chapter arrays, e.g. chapterFiles[0] = [file, ...]
+let allFiles           = [];   // flat list kept for lightbox compat
+let lightboxIndex      = 0;
+let activeChapterIndex = 0;
 
 const tabsEl    = document.getElementById('chapterTabs');
 const pillEl    = document.getElementById('tabPill');
 const container = document.getElementById('chaptersContainer');
 const countEl   = document.getElementById('galleryCount');
 
-/* ── FETCH ── */
+/* ── FETCH (recursive — walks subfolders) ── */
 async function fetchFolder(folderId) {
-  let files = [], pageToken = null;
+  // 1. Grab image files directly in this folder
+  let files = [], imgPageToken = null;
   do {
-    let url = `https://www.googleapis.com/drive/v3/files`
+    let imgUrl = `https://www.googleapis.com/drive/v3/files`
       + `?q='${folderId}'+in+parents+and+mimeType+contains+'image/'`
       + `&key=${API_KEY}`
       + `&fields=nextPageToken,files(id,name)`
       + `&pageSize=100&orderBy=name`;
-    if (pageToken) url += `&pageToken=${pageToken}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
-    const data = await res.json();
-    files = files.concat(data.files || []);
-    pageToken = data.nextPageToken || null;
-  } while (pageToken);
+    if (imgPageToken) imgUrl += `&pageToken=${imgPageToken}`;
+    const imgRes  = await fetch(imgUrl);
+    if (!imgRes.ok) throw new Error(`Drive API error: ${imgRes.status}`);
+    const imgData = await imgRes.json();
+    files = files.concat(imgData.files || []);
+    imgPageToken = imgData.nextPageToken || null;
+  } while (imgPageToken);
+
+  // 2. Find any subfolders
+  let subfolders = [], subPageToken = null;
+  do {
+    let subUrl = `https://www.googleapis.com/drive/v3/files`
+      + `?q='${folderId}'+in+parents+and+mimeType='application/vnd.google-apps.folder'`
+      + `&key=${API_KEY}`
+      + `&fields=nextPageToken,files(id,name)`
+      + `&pageSize=100`;
+    if (subPageToken) subUrl += `&pageToken=${subPageToken}`;
+    const subRes  = await fetch(subUrl);
+    if (!subRes.ok) throw new Error(`Drive API error: ${subRes.status}`);
+    const subData = await subRes.json();
+    subfolders = subfolders.concat(subData.files || []);
+    subPageToken = subData.nextPageToken || null;
+  } while (subPageToken);
+
+  // 3. Recurse into each subfolder
+  if (subfolders.length) {
+    const subResults = await Promise.all(subfolders.map(f => fetchFolder(f.id)));
+    subResults.forEach(subFiles => { files = files.concat(subFiles); });
+  }
+
   return files;
 }
 
@@ -786,7 +812,7 @@ function buildTabs() {
     btn.className = 'chapter-tab' + (i === 0 ? ' active' : '');
     btn.dataset.index = i;
     btn.innerHTML = `<span class="tab-emoji">${ch.emoji}</span>${ch.name}<span class="tab-count" id="tab-count-${i}">—</span>`;
-    btn.addEventListener('click', () => scrollToChapter(i));
+    btn.addEventListener('click', () => showChapter(i));
     tabsEl.appendChild(btn);
   });
   // wait a tick for layout, then position pill
@@ -829,13 +855,11 @@ function buildChapterSection(ch, index) {
 }
 
 /* ── RENDER IMAGES ── */
-function renderFiles(files, masonryEl, globalOffset) {
-  files.forEach((file, i) => {
-    const globalIndex = globalOffset + i;
+function renderFiles(files, masonryEl, chapterIndex) {
+  files.forEach((file, localIndex) => {
     const wrap = document.createElement('div');
     wrap.className = 'masonry-item';
-    wrap.dataset.index = globalIndex;
-    wrap.onclick = () => openLightbox(globalIndex);
+    wrap.onclick = () => openLightbox(chapterIndex, localIndex);
 
     const img = document.createElement('img');
     img.src = thumbUrl(file.id);
@@ -857,33 +881,25 @@ function renderFiles(files, masonryEl, globalOffset) {
   });
 }
 
-/* ── SCROLL SPY ── */
-function setupScrollSpy() {
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const index = parseInt(entry.target.id.split('-')[1]);
-        setActiveTab(index);
-        // playful badge pop when section enters view
-        entry.target.classList.add('pulse');
-        setTimeout(() => entry.target.classList.remove('pulse'), 600);
-      }
-    });
-  }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
 
+/* ── SHOW CHAPTER (tab switcher) ── */
+function showChapter(index) {
+  activeChapterIndex = index;
+  setActiveTab(index);
+
+  // Show only the selected chapter section
   CHAPTERS.forEach((_, i) => {
     const sec = document.getElementById(`chapter-${i}`);
-    if (sec) observer.observe(sec);
+    if (sec) sec.style.display = i === index ? '' : 'none';
   });
-}
 
-/* ── SCROLL TO CHAPTER ── */
-function scrollToChapter(index) {
-  const sec    = document.getElementById(`chapter-${index}`);
-  const tabsH  = document.getElementById('chapterTabsWrap').offsetHeight;
-  if (!sec) return;
-  const top = sec.getBoundingClientRect().top + window.scrollY - tabsH - 20;
-  window.scrollTo({ top, behavior: 'smooth' });
+  // Scroll the gallery section into view (below the sticky tabs)
+  const gallery = document.getElementById('gallery');
+  if (gallery) {
+    const tabsH = document.getElementById('chapterTabsWrap').offsetHeight;
+    const top = gallery.getBoundingClientRect().top + window.scrollY - tabsH;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
 }
 
 /* ── INIT ── */
@@ -893,6 +909,8 @@ async function initGallery() {
   CHAPTERS.forEach((ch, i) => {
     const sec = buildChapterSection(ch, i);
     container.appendChild(sec);
+    // Hide every chapter except the first
+    if (i !== 0) sec.style.display = 'none';
     const m = document.getElementById(`masonry-${i}`);
     for (let s = 0; s < 6; s++) {
       const sk = document.createElement('div');
@@ -913,39 +931,44 @@ async function initGallery() {
 
     if (result.status === 'fulfilled') {
       const files = result.value;
-      const offset = allFiles.length;
-      allFiles = allFiles.concat(files);
-      renderFiles(files, m, offset);
+      chapterFiles[i] = files;          // store per-chapter
+      allFiles = allFiles.concat(files); // keep flat list
+      renderFiles(files, m, i);         // pass chapter index, not global offset
       if (badge) badge.textContent = files.length;
       total += files.length;
     } else {
+      chapterFiles[i] = [];
       m.innerHTML = `<div class="gallery-error"><p>No se pudo cargar este capítulo.<br><small>${result.reason?.message || ''}</small></p></div>`;
       if (badge) badge.textContent = '!';
     }
   });
 
   countEl.innerHTML = `<em>${total}</em> fotos en <em>${CHAPTERS.length}</em> capítulos`;
-  setupScrollSpy();
+  // No scroll spy needed — chapters are tab-switched, not scroll-based
 }
 
-/* LIGHTBOX */
-function openLightbox(index) {
-  lightboxIndex = index;
+/* LIGHTBOX — scoped to active chapter */
+function openLightbox(chapterIndex, localIndex) {
+  activeChapterIndex = chapterIndex;
+  lightboxIndex = localIndex;
   renderLightbox();
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function renderLightbox() {
-  const file = allFiles[lightboxIndex];
+  const files = chapterFiles[activeChapterIndex] || [];
+  const file = files[lightboxIndex];
   if (!file) return;
   const lbImg = document.getElementById('lightbox-img');
   lbImg.src = fullUrl(file.id);
-  document.getElementById('lightbox-caption').textContent = `${lightboxIndex + 1} / ${allFiles.length}`;
+  document.getElementById('lightbox-caption').textContent = `${lightboxIndex + 1} / ${files.length}`;
 }
 
 function lightboxNav(dir) {
-  lightboxIndex = (lightboxIndex + dir + allFiles.length) % allFiles.length;
+  const files = chapterFiles[activeChapterIndex] || [];
+  if (!files.length) return;
+  lightboxIndex = (lightboxIndex + dir + files.length) % files.length;
   renderLightbox();
 }
 
