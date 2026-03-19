@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -266,8 +266,97 @@
 
     /* gallery error state */
     .gallery-error {
-      grid-column: 1 / -1; padding: 60px 24px; text-align: center;
+      padding: 60px 24px; text-align: center;
       color: var(--muted); font-size: 14px; line-height: 1.7;
+    }
+
+    /* ── Chapter Tabs ── */
+    .chapter-tabs-wrap {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(250,245,236,0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(46,31,20,0.08);
+      padding: 0 24px;
+    }
+    .chapter-tabs {
+      max-width: 1160px; margin: 0 auto;
+      display: flex; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
+      padding: 10px 0; position: relative;
+    }
+    .chapter-tabs::-webkit-scrollbar { display: none; }
+
+    /* sliding pill behind active tab */
+    .tab-pill {
+      position: absolute; top: 10px;
+      height: calc(100% - 20px);
+      background: var(--terra); border-radius: 999px;
+      transition: left 0.4s cubic-bezier(0.34,1.56,0.64,1),
+                  width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none; z-index: 0;
+      box-shadow: 0 4px 16px rgba(200,96,58,0.35);
+    }
+
+    .chapter-tab {
+      position: relative; z-index: 1;
+      flex-shrink: 0; display: flex; align-items: center; gap: 7px;
+      padding: 8px 16px; border-radius: 999px; border: none;
+      background: transparent; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      color: var(--muted); transition: color 0.25s; white-space: nowrap;
+    }
+    .chapter-tab:hover:not(.active) { color: var(--bark); }
+    .chapter-tab.active { color: white; }
+
+    .tab-emoji { font-size: 15px; line-height: 1; }
+    .tab-count {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      background: rgba(46,31,20,0.09); color: var(--muted);
+      border-radius: 999px; padding: 2px 7px; min-width: 22px;
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .chapter-tab.active .tab-count {
+      background: rgba(255,255,255,0.25); color: white;
+    }
+
+    /* ── Chapter Sections ── */
+    .chapter-section { margin-bottom: 64px; }
+
+    .chapter-header {
+      display: flex; align-items: center; gap: 18px;
+      padding: 44px 0 20px;
+    }
+    .chapter-emoji-badge {
+      width: 52px; height: 52px; flex-shrink: 0;
+      background: var(--sand); border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 2px 12px rgba(46,31,20,0.1);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .chapter-section.pulse .chapter-emoji-badge {
+      animation: badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes badgePop {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.35) rotate(-8deg); }
+      70%  { transform: scale(0.95) rotate(4deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    .chapter-meta { flex: 1; }
+    .chapter-name {
+      font-family: 'Cormorant Garamond', serif; font-weight: 600;
+      font-size: clamp(24px, 3vw, 38px); color: var(--bark); line-height: 1.1;
+    }
+    .chapter-name em { font-style: italic; color: var(--terra); }
+    .chapter-subtitle {
+      font-size: 11px; font-weight: 600; letter-spacing: 4px;
+      text-transform: uppercase; color: var(--muted); margin-top: 5px;
+    }
+    .chapter-rule {
+      width: 100%; height: 1px; margin-bottom: 20px;
+      background: linear-gradient(90deg, rgba(200,96,58,0.25) 0%, transparent 70%);
     }
 
     /* ══ MESSAGE ══ */
@@ -437,10 +526,10 @@
 <!-- ══ HERO ══ -->
 <section id="hero">
   <div class="hero-inner">
-    <p class="hero-eyebrow">19 · 03 · 2026 — Feliz Cumpleaños</p>
+    <p class="hero-eyebrow">19 · 03 · 2026 — Happy Birthday</p>
     <h1 class="hero-name">Van<em>ia</em></h1>
     <div class="hero-divider"></div>
-    <p class="hero-subtitle">Veintidós años de ser tú</p>
+    <p class="hero-subtitle">Twenty-two years of being you</p>
     <div class="hero-date-line">
       <div class="dash"></div>
       <span>Vania Raquel Ventura Gómez</span>
@@ -455,21 +544,21 @@
         <path d="M12 5v14M5 12l7 7 7-7"/>
       </svg>
     </div>
-    <span class="hero-bottom-right">22 años</span>
+    <span class="hero-bottom-right">22 years</span>
   </div>
 </section>
 
 <!-- ══ COUNTER ══ -->
 <section id="counter">
-  <p class="counter-label reveal">⏱ Contador de vida</p>
-  <h2 class="counter-heading reveal">Vania lleva exactamente <em>viviendo…</em></h2>
+  <p class="counter-label reveal">⏱ Life Counter</p>
+  <h2 class="counter-heading reveal">Vania has been living for <em>exactly…</em></h2>
   <div class="counter-row">
-    <div class="c-cell reveal"><span class="c-num" id="c-years">—</span><span class="c-lbl">Años</span></div>
-    <div class="c-cell reveal"><span class="c-num" id="c-months">—</span><span class="c-lbl">Meses</span></div>
-    <div class="c-cell reveal"><span class="c-num" id="c-days">—</span><span class="c-lbl">Días</span></div>
-    <div class="c-cell reveal"><span class="c-num" id="c-hours">—</span><span class="c-lbl">Horas</span></div>
-    <div class="c-cell reveal"><span class="c-num" id="c-mins">—</span><span class="c-lbl">Minutos</span></div>
-    <div class="c-cell reveal"><span class="c-num" id="c-secs">—</span><span class="c-lbl">Segundos</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-years">—</span><span class="c-lbl">Years</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-months">—</span><span class="c-lbl">Months</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-days">—</span><span class="c-lbl">Days</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-hours">—</span><span class="c-lbl">Hours</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-mins">—</span><span class="c-lbl">Minutes</span></div>
+    <div class="c-cell reveal"><span class="c-num" id="c-secs">—</span><span class="c-lbl">Seconds</span></div>
   </div>
 </section>
 
@@ -477,22 +566,25 @@
 <section id="gallery">
   <div class="section-header reveal">
     <div>
-      <span class="section-label">📷 Una vida en imágenes</span>
-      <h2 class="section-title">Vania a través<br>del <em>tiempo</em></h2>
-    <!-- Background audio (place an MP3 at assets/music.mp3 or change to a hosted URL) -->
-    <audio id="bg-audio" src="Taylor Swift - 22 - Taylor Swift.mp3" preload="auto" loop></audio>
-
+      <span class="section-label">📷 A Life in Pictures</span>
+      <h2 class="section-title">Vania through<br>the <em>Years</em></h2>
+      <audio id="bg-audio" src="assets/music.mp3" preload="auto" loop></audio>
     </div>
-    <p class="section-header-right">De bebé hasta hoy. Cada foto, un capítulo de una historia que apenas empieza.</p>
+    <p class="section-header-right">From baby to today. Each photo, a chapter of a story that is just beginning.</p>
   </div>
-  <div class="gallery-masonry" id="galleryGrid"></div>
+
+  <!-- Sticky chapter tabs -->
+  <div class="chapter-tabs-wrap" id="chapterTabsWrap">
+    <div class="chapter-tabs" id="chapterTabs">
+      <div class="tab-pill" id="tabPill"></div>
+    </div>
+  </div>
+
+  <!-- Chapter sections rendered by JS -->
+  <div id="chaptersContainer" style="max-width:1160px;margin:0 auto;padding:0 24px 40px;"></div>
 
   <div class="gallery-controls">
     <p class="gallery-count" id="galleryCount"></p>
-    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()" style="display:none">
-      <div class="spinner"></div>
-      <span class="btn-text">Ver más fotos</span>
-    </button>
   </div>
 </section>
 
@@ -500,33 +592,31 @@
 <section id="message">
   <div class="msg-bg-text">Vania</div>
   <div class="message-inner reveal">
-    <span class="msg-label">Para ti · 19 de Marzo, 2026</span>
-    <h2 class="msg-to">Para Vania Raquel,<br>con todo el amor.</h2>
+    <span class="msg-label">For you · March 19, 2026</span>
+    <h2 class="msg-to">For Vania Raquel,<br>with all my love.</h2>
     <div class="msg-divider"></div>
     <p class="msg-body">
-      Hoy celebramos <strong>22 años</strong> de una persona que hace que el mundo sea un lugar
-      más cálido, más interesante y más lleno de vida. Has crecido con una
-      <strong>gracia y una fuerza silenciosa</strong> que pocas personas tienen — esa manera tuya
-      de estar presente, de reír, de hacer sentir bien a todos los que te rodean.
+      Today we celebrate <strong>22 years</strong> of a person who makes the world a warmer, more interesting, and more vibrant place. You have grown with a
+      <strong>grace and a quiet strength</strong> that few possess — that way you have of being present, of laughing, of making everyone around you feel good.
       <br /><br />
-      Que este año te traiga todo lo que mereces: <strong>nuevas aventuras</strong>,
-      momentos que quieras guardar para siempre, y la certeza de que eres querida
-      profundamente. No solo hoy, sino cada día.
+      May this year bring you everything you deserve: <strong>new adventures</strong>,
+      moments you want to keep forever, and the certainty that you are deeply loved.
+      Not just today, but every day.
       <br /><br />
-      Feliz cumpleaños. ✨
+      Happy birthday. ✨
     </p>
     <div class="msg-sig-block">
       <div class="msg-sig">
-        <small>Con amor</small>
-        Tu familia 🌿
+        <small>With love</small>
+        Your family 🌿
       </div>
-      <p class="msg-date">19 · 03 · 2026<br>22 años</p>
+      <p class="msg-date">19 · 03 · 2026<br>22 years</p>
     </div>
   </div>
 </section>
 
 <footer>
-  Hecho con amor para <em>Vania Raquel Ventura Gómez</em> &nbsp;·&nbsp; 22 años &nbsp;·&nbsp; 19.03.2026
+  Made with love for <em>Vania Raquel Ventura Gómez</em> &nbsp;·&nbsp; 22 years &nbsp;·&nbsp; 19.03.2026
 </footer>
 
 <div id="lightbox" onclick="closeLightbox(event)">
@@ -636,130 +726,207 @@ window.addEventListener('scroll',()=>{
 function goTo(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
 
 /* ════════════════════════════════
-   GALLERY (from vania.html)
+   GALLERY — Chapter Edition
 ════════════════════════════════ */
-/* CONFIG */
-const FOLDER_ID = '1TRvvRMksmsAGC1vU33rZt4j36PJmC6EX';
-const API_KEY   = 'AIzaSyAxSHEAeoBAyrP5nP9m_RKgInYc04NM-vM';
-const PAGE_SIZE = 30;
 
-/* GALLERY STATE */
-let allFiles        = [];   // all fetched file objects
-let displayedCount  = 0;
-let nextPageToken   = null;
-let isFetching      = false;
-let lightboxIndex   = 0;
+/* ── CONFIG ──────────────────────────────────────────────
+   1. In Google Drive, create one subfolder per chapter
+      inside your main folder.
+   2. Share each subfolder publicly (or keep the same
+      sharing as the parent — Drive inherits permissions).
+   3. Paste each subfolder's ID into the array below.
+   The `name` shows in the tab & section header.
+   The `subtitle` shows as the date range label.
+─────────────────────────────────────────────────────── */
+const API_KEY = 'AIzaSyAxSHEAeoBAyrP5nP9m_RKgInYc04NM-vM';
 
-const grid       = document.getElementById('galleryGrid');
-const countEl    = document.getElementById('galleryCount');
-const loadBtn    = document.getElementById('loadMoreBtn');
+const CHAPTERS = [
+  { id: '12QWAkqAE7ryv2nLRpUdLGLBWSq1OFftz?usp=drive_link', name: 'Baby, Baby, Baby Ohhh', emoji: '🌱', subtitle: '2004 · 2009' },
+  { id: '1Z5Q4I1hBVA2UI6C4zZpHoZvX_nS1VxHl?usp=drive_link', name: 'Fuck them kids, and fuck u too', emoji: '🌻', subtitle: '2010 · 2014' },
+  { id: '1V_f4zraFiqItCGWszwcc4vq8tbLUsIrJ?usp=drive_link', name: 'Cause Im just a teenage dirtbag', emoji: '🔥', subtitle: '2015 · 2020' },
+  { id: '1V82q3gAqREMm3b1c-U7o47-bkknFgldE?usp=drive_link', name: 'Girl, so confusing', emoji: '✨', subtitle: '2021 · 2026' },
+  { id: '1usda8Lot4iVK1zRLmfxnC4Rsc_Ng5Zjj?usp=drive_link', name: 'I was looking for a job, and then I found a job', emoji: '🚀', subtitle: '2027 · …' },
+];
+
+/* ── STATE ── */
+let allFiles      = [];   // flat list, used by lightbox
+let lightboxIndex = 0;
+
+const tabsEl    = document.getElementById('chapterTabs');
+const pillEl    = document.getElementById('tabPill');
+const container = document.getElementById('chaptersContainer');
+const countEl   = document.getElementById('galleryCount');
+
+/* ── FETCH ── */
+async function fetchFolder(folderId) {
+  let files = [], pageToken = null;
+  do {
+    let url = `https://www.googleapis.com/drive/v3/files`
+      + `?q='${folderId}'+in+parents+and+mimeType+contains+'image/'`
+      + `&key=${API_KEY}`
+      + `&fields=nextPageToken,files(id,name)`
+      + `&pageSize=100&orderBy=name`;
+    if (pageToken) url += `&pageToken=${pageToken}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
+    const data = await res.json();
+    files = files.concat(data.files || []);
+    pageToken = data.nextPageToken || null;
+  } while (pageToken);
+  return files;
+}
 
 function thumbUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w600`; }
 function fullUrl(id)  { return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`; }
 
-function showSkeletons(n) {
-  for (let i = 0; i < n; i++) {
-    const sk = document.createElement('div');
-    sk.className = 'skeleton';
-    sk.style.height = (180 + Math.random() * 140) + 'px';
-    sk.id = `skel-${i}`;
-    grid.appendChild(sk);
-  }
-}
-function clearSkeletons() { grid.querySelectorAll('.skeleton').forEach(s => s.remove()); }
-
-function makeItem(file, index) {
-  const wrap = document.createElement('div');
-  wrap.className = 'masonry-item';
-  wrap.dataset.index = index;
-  wrap.onclick = () => openLightbox(index);
-
-  const img = document.createElement('img');
-  img.src = thumbUrl(file.id);
-  img.alt = file.name || '';
-  img.loading = 'lazy';
-  img.decoding = 'async';
-  img.onload = () => img.classList.add('loaded');
-
-  const overlay = document.createElement('div');
-  overlay.className = 'card-overlay';
-  const lbl = document.createElement('span');
-  const yearMatch = (file.name || '').match(/\b(200[4-9]|201\d|202[0-6])\b/);
-  lbl.textContent = yearMatch ? yearMatch[0] : '';
-  overlay.appendChild(lbl);
-
-  wrap.appendChild(img);
-  wrap.appendChild(overlay);
-  return wrap;
+/* ── TABS ── */
+function buildTabs() {
+  CHAPTERS.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'chapter-tab' + (i === 0 ? ' active' : '');
+    btn.dataset.index = i;
+    btn.innerHTML = `<span class="tab-emoji">${ch.emoji}</span>${ch.name}<span class="tab-count" id="tab-count-${i}">—</span>`;
+    btn.addEventListener('click', () => scrollToChapter(i));
+    tabsEl.appendChild(btn);
+  });
+  // wait a tick for layout, then position pill
+  requestAnimationFrame(() => movePill(0));
 }
 
-async function fetchPage(pageToken) {
-  let url = `https://www.googleapis.com/drive/v3/files`
-    + `?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'`
-    + `&key=${API_KEY}`
-    + `&fields=nextPageToken,files(id,name)`
-    + `&pageSize=100`
-    + `&orderBy=name`;
-  if (pageToken) url += `&pageToken=${pageToken}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
-  return res.json();
+function movePill(index) {
+  const tabs = tabsEl.querySelectorAll('.chapter-tab');
+  const tab  = tabs[index];
+  if (!tab) return;
+  pillEl.style.left  = tab.offsetLeft + 'px';
+  pillEl.style.width = tab.offsetWidth + 'px';
+  tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
 }
 
+function setActiveTab(index) {
+  tabsEl.querySelectorAll('.chapter-tab').forEach((t, i) =>
+    t.classList.toggle('active', i === index)
+  );
+  movePill(index);
+}
+
+/* ── CHAPTER SECTION DOM ── */
+function buildChapterSection(ch, index) {
+  const sec = document.createElement('div');
+  sec.className = 'chapter-section';
+  sec.id = `chapter-${index}`;
+  sec.innerHTML = `
+    <div class="chapter-header">
+      <div class="chapter-emoji-badge">${ch.emoji}</div>
+      <div class="chapter-meta">
+        <div class="chapter-name">${ch.name}</div>
+        <div class="chapter-subtitle">${ch.subtitle}</div>
+      </div>
+    </div>
+    <div class="chapter-rule"></div>
+    <div class="gallery-masonry" id="masonry-${index}"></div>
+  `;
+  return sec;
+}
+
+/* ── RENDER IMAGES ── */
+function renderFiles(files, masonryEl, globalOffset) {
+  files.forEach((file, i) => {
+    const globalIndex = globalOffset + i;
+    const wrap = document.createElement('div');
+    wrap.className = 'masonry-item';
+    wrap.dataset.index = globalIndex;
+    wrap.onclick = () => openLightbox(globalIndex);
+
+    const img = document.createElement('img');
+    img.src = thumbUrl(file.id);
+    img.alt = file.name || '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.onload = () => img.classList.add('loaded');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'card-overlay';
+    const lbl = document.createElement('span');
+    const yearMatch = (file.name || '').match(/\b(200[4-9]|201\d|202[0-6])\b/);
+    lbl.textContent = yearMatch ? yearMatch[0] : '';
+    overlay.appendChild(lbl);
+
+    wrap.appendChild(img);
+    wrap.appendChild(overlay);
+    masonryEl.appendChild(wrap);
+  });
+}
+
+/* ── SCROLL SPY ── */
+function setupScrollSpy() {
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const index = parseInt(entry.target.id.split('-')[1]);
+        setActiveTab(index);
+        // playful badge pop when section enters view
+        entry.target.classList.add('pulse');
+        setTimeout(() => entry.target.classList.remove('pulse'), 600);
+      }
+    });
+  }, { rootMargin: '-35% 0px -55% 0px', threshold: 0 });
+
+  CHAPTERS.forEach((_, i) => {
+    const sec = document.getElementById(`chapter-${i}`);
+    if (sec) observer.observe(sec);
+  });
+}
+
+/* ── SCROLL TO CHAPTER ── */
+function scrollToChapter(index) {
+  const sec    = document.getElementById(`chapter-${index}`);
+  const tabsH  = document.getElementById('chapterTabsWrap').offsetHeight;
+  if (!sec) return;
+  const top = sec.getBoundingClientRect().top + window.scrollY - tabsH - 20;
+  window.scrollTo({ top, behavior: 'smooth' });
+}
+
+/* ── INIT ── */
 async function initGallery() {
-  showSkeletons(12);
-  try {
-    const data = await fetchPage(null);
-    nextPageToken = data.nextPageToken || null;
-    allFiles = data.files || [];
-
-    while (nextPageToken && allFiles.length < 500) {
-      const more = await fetchPage(nextPageToken);
-      allFiles = allFiles.concat(more.files || []);
-      nextPageToken = more.nextPageToken || null;
+  buildTabs();
+  // Build all section shells immediately (with skeletons)
+  CHAPTERS.forEach((ch, i) => {
+    const sec = buildChapterSection(ch, i);
+    container.appendChild(sec);
+    const m = document.getElementById(`masonry-${i}`);
+    for (let s = 0; s < 6; s++) {
+      const sk = document.createElement('div');
+      sk.className = 'skeleton';
+      sk.style.height = (160 + Math.random() * 120) + 'px';
+      m.appendChild(sk);
     }
+  });
 
-    clearSkeletons();
+  // Fetch all chapters in parallel
+  const results = await Promise.allSettled(CHAPTERS.map(ch => fetchFolder(ch.id)));
 
-    if (allFiles.length === 0) {
-      showError('No se encontraron imágenes en la carpeta. Asegúrate de que el acceso sea público.');
-      return;
+  let total = 0;
+  results.forEach((result, i) => {
+    const m = document.getElementById(`masonry-${i}`);
+    m.querySelectorAll('.skeleton').forEach(s => s.remove());
+    const badge = document.getElementById(`tab-count-${i}`);
+
+    if (result.status === 'fulfilled') {
+      const files = result.value;
+      const offset = allFiles.length;
+      allFiles = allFiles.concat(files);
+      renderFiles(files, m, offset);
+      if (badge) badge.textContent = files.length;
+      total += files.length;
+    } else {
+      m.innerHTML = `<div class="gallery-error"><p>No se pudo cargar este capítulo.<br><small>${result.reason?.message || ''}</small></p></div>`;
+      if (badge) badge.textContent = '!';
     }
+  });
 
-    renderBatch(PAGE_SIZE);
-    updateCount();
-    if (displayedCount < allFiles.length) loadBtn.style.display = 'flex';
-
-  } catch (err) {
-    clearSkeletons();
-    showError(`No se pudo conectar con Google Drive.<br><strong>${err.message}</strong><br><br>Verifica que la API key tenga habilitado Google Drive API y que la carpeta sea pública.`);
-  }
+  countEl.innerHTML = `<em>${total}</em> fotos en <em>${CHAPTERS.length}</em> capítulos`;
+  setupScrollSpy();
 }
-
-function renderBatch(n) {
-  const end = Math.min(displayedCount + n, allFiles.length);
-  for (let i = displayedCount; i < end; i++) { grid.appendChild(makeItem(allFiles[i], i)); }
-  displayedCount = end;
-}
-
-function loadMore() {
-  if (isFetching) return;
-  isFetching = true;
-  loadBtn.classList.add('loading');
-  loadBtn.disabled = true;
-
-  setTimeout(() => {
-    renderBatch(PAGE_SIZE);
-    updateCount();
-    isFetching = false;
-    loadBtn.classList.remove('loading');
-    loadBtn.disabled = false;
-    if (displayedCount >= allFiles.length) loadBtn.style.display = 'none';
-  }, 400);
-}
-
-function updateCount() { countEl.innerHTML = `Mostrando <em>${displayedCount}</em> de <em>${allFiles.length}</em> fotos`; }
-function showError(msg) { grid.innerHTML = `<div class="gallery-error"><p>${msg}</p></div>`; }
 
 /* LIGHTBOX */
 function openLightbox(index) {
@@ -790,12 +957,12 @@ function closeLightbox(e) {
 
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
-  if (e.key === 'Escape')      closeLightbox({ target: document.getElementById('lightbox') });
-  if (e.key === 'ArrowRight')  lightboxNav(1);
-  if (e.key === 'ArrowLeft')   lightboxNav(-1);
+  if (e.key === 'Escape')     closeLightbox({ target: document.getElementById('lightbox') });
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
 });
 
-// Boot gallery
+// Boot
 initGallery();
 </script>
 <script>
