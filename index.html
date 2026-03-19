@@ -174,69 +174,100 @@
       font-size: 14px; color: var(--muted); max-width: 260px;
       line-height: 1.6; font-weight: 400; flex-shrink: 0;
     }
-    .gallery-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 12px; max-width: 1160px; margin: 0 auto;
+    /* ── Masonry grid ── */
+    .gallery-masonry {
+      columns: 4; column-gap: 12px;
+      max-width: 1160px; margin: 0 auto;
     }
-    .photo-card:nth-child(1)  { grid-column: span 2; grid-row: span 2; }
-    .photo-card:nth-child(6)  { grid-column: span 2; }
-    .photo-card:nth-child(9)  { grid-column: span 2; grid-row: span 2; }
-    .photo-card {
-      border-radius: 8px; overflow: hidden; aspect-ratio: 3/4;
-      position: relative; cursor: pointer; background: var(--sand);
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    @media (max-width: 1100px) { .gallery-masonry { columns: 3; } }
+    @media (max-width: 720px)  { .gallery-masonry { columns: 2; } }
+    @media (max-width: 420px)  { .gallery-masonry { columns: 1; } }
+
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 12px;
+      border-radius: 10px; overflow: hidden;
+      position: relative; cursor: pointer;
+      background: var(--sand);
+      box-shadow: 0 2px 12px rgba(46,31,20,0.08);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 0.35s ease;
     }
-    .photo-card:nth-child(1),
-    .photo-card:nth-child(9)  { aspect-ratio: unset; min-height: 340px; }
-    .photo-card:nth-child(6)  { aspect-ratio: 16/9; }
-    .photo-card:hover { transform: scale(1.025); z-index: 2; }
-    .photo-card:nth-child(1)  { background: linear-gradient(150deg, #D4A574, #C8603A); }
-    .photo-card:nth-child(2)  { background: linear-gradient(150deg, #A8C5A0, #6B9C6E); }
-    .photo-card:nth-child(3)  { background: linear-gradient(150deg, #E8C9A0, #D4956A); }
-    .photo-card:nth-child(4)  { background: linear-gradient(150deg, #B8956A, #8A6845); }
-    .photo-card:nth-child(5)  { background: linear-gradient(150deg, #C4B49A, #9A7B5E); }
-    .photo-card:nth-child(6)  { background: linear-gradient(150deg, #8FA888, #5E7D60); }
-    .photo-card:nth-child(7)  { background: linear-gradient(150deg, #D4956A, #A8603A); }
-    .photo-card:nth-child(8)  { background: linear-gradient(150deg, #C8A882, #9A7B5A); }
-    .photo-card:nth-child(9)  { background: linear-gradient(150deg, #7A9E7E, #4E6B51); }
-    .photo-card:nth-child(10) { background: linear-gradient(150deg, #E0C4A0, #C4956A); }
-    .photo-card:nth-child(11) { background: linear-gradient(150deg, #B4C9B0, #7A9E7E); }
-    .photo-card:nth-child(12) { background: linear-gradient(150deg, #C8603A, #A84520); }
-    .photo-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .photo-placeholder {
-      width: 100%; height: 100%; min-height: 200px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 10px; padding: 24px;
+    .masonry-item:hover {
+      transform: translateY(-4px) scale(1.015);
+      box-shadow: 0 12px 36px rgba(46,31,20,0.18);
+      z-index: 2;
     }
-    .ph-icon { font-size: 40px; opacity: 0.8; }
-    .ph-year {
-      font-family: 'Cormorant Garamond', serif; font-weight: 600;
-      font-size: 32px; color: rgba(255,255,255,0.9);
-      text-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    .masonry-item img {
+      width: 100%; height: auto; display: block;
+      opacity: 0; transition: opacity 0.5s ease;
     }
-    .ph-label {
-      font-size: 11px; font-weight: 500; letter-spacing: 3px;
-      text-transform: uppercase; color: rgba(255,255,255,0.65); text-align: center;
-    }
+    .masonry-item img.loaded { opacity: 1; }
+
+    /* overlay with year label */
     .card-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(46,31,20,0.6) 0%, transparent 55%);
-      opacity: 0; transition: opacity 0.35s;
-      display: flex; align-items: flex-end; padding: 18px;
+      background: linear-gradient(to top, rgba(46,31,20,0.65) 0%, transparent 50%);
+      opacity: 0; transition: opacity 0.3s;
+      display: flex; align-items: flex-end; padding: 14px 16px;
     }
-    .photo-card:hover .card-overlay { opacity: 1; }
+    .masonry-item:hover .card-overlay { opacity: 1; }
     .card-overlay span {
       font-size: 11px; font-weight: 600; letter-spacing: 3px;
-      text-transform: uppercase; color: rgba(255,255,255,0.85);
+      text-transform: uppercase; color: rgba(255,255,255,0.9);
     }
-    .swap-hint {
-      text-align: center; margin-top: 28px;
-      font-size: 13px; color: var(--muted); font-weight: 400;
+
+    /* skeleton placeholders */
+    .skeleton {
+      break-inside: avoid; margin-bottom: 12px;
+      border-radius: 10px; background: var(--sand);
+      animation: shimmer 1.4s infinite linear;
+      background-image: linear-gradient(
+        90deg,
+        var(--sand) 0%, rgba(255,255,255,0.6) 40%, var(--sand) 80%
+      );
+      background-size: 300% 100%;
     }
-    .swap-hint code {
-      background: rgba(200,96,58,0.1); color: var(--terra);
-      padding: 2px 8px; border-radius: 4px; font-size: 12px;
+    @keyframes shimmer {
+      from { background-position: 100% 0; }
+      to   { background-position: -100% 0; }
+    }
+
+    /* gallery controls */
+    .gallery-controls {
+      max-width: 1160px; margin: 36px auto 0;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 20px;
+    }
+    .gallery-count {
+      font-size: 12px; font-weight: 500; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .gallery-count em { color: var(--terra); font-style: normal; font-weight: 600; }
+    .load-more-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 36px; border-radius: 999px;
+      border: 1.5px solid var(--terra); background: transparent;
+      color: var(--terra); font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; cursor: pointer;
+      transition: background 0.25s, color 0.25s, transform 0.2s;
+    }
+    .load-more-btn:hover { background: var(--terra); color: white; transform: translateY(-2px); }
+    .load-more-btn:active { transform: translateY(0); }
+    .load-more-btn.loading .btn-text { opacity: 0.4; }
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid currentColor; border-top-color: transparent;
+      display: none; animation: spin 0.7s linear infinite;
+    }
+    .load-more-btn.loading .spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* gallery error state */
+    .gallery-error {
+      grid-column: 1 / -1; padding: 60px 24px; text-align: center;
+      color: var(--muted); font-size: 14px; line-height: 1.7;
     }
 
     /* ══ MESSAGE ══ */
@@ -326,6 +357,25 @@
       font-size: 11px; font-weight: 600; letter-spacing: 4px;
       text-transform: uppercase; color: rgba(255,255,255,0.35);
     }
+    #lightbox-prev, #lightbox-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7); font-size: 32px; line-height: 1;
+      width: 52px; height: 52px; border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s, transform 0.2s;
+      backdrop-filter: blur(8px);
+    }
+    #lightbox-prev { left: 24px; }
+    #lightbox-next { right: 24px; }
+    #lightbox-prev:hover, #lightbox-next:hover {
+      background: rgba(200,96,58,0.7); color: white;
+      transform: translateY(-50%) scale(1.1);
+    }
+    @media (max-width: 600px) {
+      #lightbox-prev { left: 8px; }
+      #lightbox-next { right: 8px; }
+    }
 
     /* ══ ANIMATIONS ══ */
     @keyframes fadeDown {
@@ -351,12 +401,6 @@
     }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    @media (max-width: 900px) {
-      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-      .photo-card:nth-child(1) { grid-column: span 2; }
-      .photo-card:nth-child(6) { grid-column: span 1; aspect-ratio: 3/4; }
-      .photo-card:nth-child(9) { grid-column: span 2; }
-    }
     @media (max-width: 600px) {
       .hero-bottom { padding: 16px 20px 24px; }
       .hero-bottom-left, .hero-bottom-right { display: none; }
@@ -435,60 +479,21 @@
     <div>
       <span class="section-label">📷 Una vida en imágenes</span>
       <h2 class="section-title">Vania a través<br>del <em>tiempo</em></h2>
+    <!-- Background audio (place an MP3 at assets/music.mp3 or change to a hosted URL) -->
+    <audio id="bg-audio" src="Taylor Swift - 22 - Taylor Swift.mp3" preload="auto" loop></audio>
+
     </div>
     <p class="section-header-right">De bebé hasta hoy. Cada foto, un capítulo de una historia que apenas empieza.</p>
   </div>
-  <div class="gallery-grid">
-    <div class="photo-card reveal" data-label="Bebé · 2004" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">👶</span><span class="ph-year">2004</span><span class="ph-label">Bebé Vania</span></div>
-      <div class="card-overlay"><span>Bebé · 2004</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Infancia · 2007" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🌿</span><span class="ph-year">2007</span><span class="ph-label">Pequeña</span></div>
-      <div class="card-overlay"><span>Infancia · 2007</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Niñez · 2009" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🍂</span><span class="ph-year">2009</span><span class="ph-label">Niñez</span></div>
-      <div class="card-overlay"><span>Niñez · 2009</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Escuela · 2011" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">📚</span><span class="ph-year">2011</span><span class="ph-label">Escuela</span></div>
-      <div class="card-overlay"><span>Escuela · 2011</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Creciendo · 2013" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🌱</span><span class="ph-year">2013</span><span class="ph-label">Creciendo</span></div>
-      <div class="card-overlay"><span>Creciendo · 2013</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Aventuras · 2015" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🌄</span><span class="ph-year">2015</span><span class="ph-label">Aventuras</span></div>
-      <div class="card-overlay"><span>Aventuras · 2015</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Teen era · 2017" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🍃</span><span class="ph-year">2017</span><span class="ph-label">Teen era</span></div>
-      <div class="card-overlay"><span>Teen · 2017</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="XV Años · 2019" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🌸</span><span class="ph-year">2019</span><span class="ph-label">XV Años</span></div>
-      <div class="card-overlay"><span>Quinceañera · 2019</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="2020 era" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🪴</span><span class="ph-year">2020</span><span class="ph-label">Pandemia era</span></div>
-      <div class="card-overlay"><span>2020</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Brillando · 2022" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">✨</span><span class="ph-year">2022</span><span class="ph-label">Brillando</span></div>
-      <div class="card-overlay"><span>Brillando · 2022</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Icónica · 2024" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🦋</span><span class="ph-year">2024</span><span class="ph-label">Icónica</span></div>
-      <div class="card-overlay"><span>Icónica · 2024</span></div>
-    </div>
-    <div class="photo-card reveal" data-label="Vania hoy · 2026" onclick="openLightbox(this)">
-      <div class="photo-placeholder"><span class="ph-icon">🌾</span><span class="ph-year">2026</span><span class="ph-label">Vania hoy</span></div>
-      <div class="card-overlay"><span>Hoy · 2026</span></div>
-    </div>
+  <div class="gallery-masonry" id="galleryGrid"></div>
+
+  <div class="gallery-controls">
+    <p class="gallery-count" id="galleryCount"></p>
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()" style="display:none">
+      <div class="spinner"></div>
+      <span class="btn-text">Ver más fotos</span>
+    </button>
   </div>
-  <p class="swap-hint">💡 Para agregar fotos: dentro de cada <code>.photo-card</code>, reemplaza el placeholder con <code>&lt;img src="URL"&gt;</code></p>
 </section>
 
 <!-- ══ MESSAGE ══ -->
@@ -524,9 +529,11 @@
   Hecho con amor para <em>Vania Raquel Ventura Gómez</em> &nbsp;·&nbsp; 22 años &nbsp;·&nbsp; 19.03.2026
 </footer>
 
-<div id="lightbox" onclick="closeLightbox()">
+<div id="lightbox" onclick="closeLightbox(event)">
   <span id="lightbox-close" onclick="closeLightbox()">✕</span>
+  <button id="lightbox-prev" onclick="lightboxNav(-1); event.stopPropagation()">‹</button>
   <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+  <button id="lightbox-next" onclick="lightboxNav(1); event.stopPropagation()">›</button>
   <div id="lightbox-caption"></div>
 </div>
 
@@ -628,20 +635,168 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 function goTo(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
 
-/* ── LIGHTBOX ── */
-function openLightbox(card) {
-  const img=card.querySelector('img');
-  document.getElementById('lightbox-caption').textContent=card.getAttribute('data-label')||'';
-  if(img){ document.getElementById('lightbox-img').src=img.src; document.getElementById('lightbox-img').style.display='block'; }
-  else document.getElementById('lightbox-img').style.display='none';
+/* ════════════════════════════════
+   GALLERY (from vania.html)
+════════════════════════════════ */
+/* CONFIG */
+const FOLDER_ID = '1TRvvRMksmsAGC1vU33rZt4j36PJmC6EX';
+const API_KEY   = 'AIzaSyAxSHEAeoBAyrP5nP9m_RKgInYc04NM-vM';
+const PAGE_SIZE = 30;
+
+/* GALLERY STATE */
+let allFiles        = [];   // all fetched file objects
+let displayedCount  = 0;
+let nextPageToken   = null;
+let isFetching      = false;
+let lightboxIndex   = 0;
+
+const grid       = document.getElementById('galleryGrid');
+const countEl    = document.getElementById('galleryCount');
+const loadBtn    = document.getElementById('loadMoreBtn');
+
+function thumbUrl(id) { return `https://drive.google.com/thumbnail?id=${id}&sz=w600`; }
+function fullUrl(id)  { return `https://drive.google.com/thumbnail?id=${id}&sz=w1600`; }
+
+function showSkeletons(n) {
+  for (let i = 0; i < n; i++) {
+    const sk = document.createElement('div');
+    sk.className = 'skeleton';
+    sk.style.height = (180 + Math.random() * 140) + 'px';
+    sk.id = `skel-${i}`;
+    grid.appendChild(sk);
+  }
+}
+function clearSkeletons() { grid.querySelectorAll('.skeleton').forEach(s => s.remove()); }
+
+function makeItem(file, index) {
+  const wrap = document.createElement('div');
+  wrap.className = 'masonry-item';
+  wrap.dataset.index = index;
+  wrap.onclick = () => openLightbox(index);
+
+  const img = document.createElement('img');
+  img.src = thumbUrl(file.id);
+  img.alt = file.name || '';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+  img.onload = () => img.classList.add('loaded');
+
+  const overlay = document.createElement('div');
+  overlay.className = 'card-overlay';
+  const lbl = document.createElement('span');
+  const yearMatch = (file.name || '').match(/\b(200[4-9]|201\d|202[0-6])\b/);
+  lbl.textContent = yearMatch ? yearMatch[0] : '';
+  overlay.appendChild(lbl);
+
+  wrap.appendChild(img);
+  wrap.appendChild(overlay);
+  return wrap;
+}
+
+async function fetchPage(pageToken) {
+  let url = `https://www.googleapis.com/drive/v3/files`
+    + `?q='${FOLDER_ID}'+in+parents+and+mimeType+contains+'image/'`
+    + `&key=${API_KEY}`
+    + `&fields=nextPageToken,files(id,name)`
+    + `&pageSize=100`
+    + `&orderBy=name`;
+  if (pageToken) url += `&pageToken=${pageToken}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Drive API error: ${res.status}`);
+  return res.json();
+}
+
+async function initGallery() {
+  showSkeletons(12);
+  try {
+    const data = await fetchPage(null);
+    nextPageToken = data.nextPageToken || null;
+    allFiles = data.files || [];
+
+    while (nextPageToken && allFiles.length < 500) {
+      const more = await fetchPage(nextPageToken);
+      allFiles = allFiles.concat(more.files || []);
+      nextPageToken = more.nextPageToken || null;
+    }
+
+    clearSkeletons();
+
+    if (allFiles.length === 0) {
+      showError('No se encontraron imágenes en la carpeta. Asegúrate de que el acceso sea público.');
+      return;
+    }
+
+    renderBatch(PAGE_SIZE);
+    updateCount();
+    if (displayedCount < allFiles.length) loadBtn.style.display = 'flex';
+
+  } catch (err) {
+    clearSkeletons();
+    showError(`No se pudo conectar con Google Drive.<br><strong>${err.message}</strong><br><br>Verifica que la API key tenga habilitado Google Drive API y que la carpeta sea pública.`);
+  }
+}
+
+function renderBatch(n) {
+  const end = Math.min(displayedCount + n, allFiles.length);
+  for (let i = displayedCount; i < end; i++) { grid.appendChild(makeItem(allFiles[i], i)); }
+  displayedCount = end;
+}
+
+function loadMore() {
+  if (isFetching) return;
+  isFetching = true;
+  loadBtn.classList.add('loading');
+  loadBtn.disabled = true;
+
+  setTimeout(() => {
+    renderBatch(PAGE_SIZE);
+    updateCount();
+    isFetching = false;
+    loadBtn.classList.remove('loading');
+    loadBtn.disabled = false;
+    if (displayedCount >= allFiles.length) loadBtn.style.display = 'none';
+  }, 400);
+}
+
+function updateCount() { countEl.innerHTML = `Mostrando <em>${displayedCount}</em> de <em>${allFiles.length}</em> fotos`; }
+function showError(msg) { grid.innerHTML = `<div class="gallery-error"><p>${msg}</p></div>`; }
+
+/* LIGHTBOX */
+function openLightbox(index) {
+  lightboxIndex = index;
+  renderLightbox();
   document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
-function closeLightbox(){
+
+function renderLightbox() {
+  const file = allFiles[lightboxIndex];
+  if (!file) return;
+  const lbImg = document.getElementById('lightbox-img');
+  lbImg.src = fullUrl(file.id);
+  document.getElementById('lightbox-caption').textContent = `${lightboxIndex + 1} / ${allFiles.length}`;
+}
+
+function lightboxNav(dir) {
+  lightboxIndex = (lightboxIndex + dir + allFiles.length) % allFiles.length;
+  renderLightbox();
+}
+
+function closeLightbox(e) {
+  if (e && e.target !== document.getElementById('lightbox') && e.target !== document.getElementById('lightbox-close')) return;
   document.getElementById('lightbox').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); });
+
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')      closeLightbox({ target: document.getElementById('lightbox') });
+  if (e.key === 'ArrowRight')  lightboxNav(1);
+  if (e.key === 'ArrowLeft')   lightboxNav(-1);
+});
+
+// Boot gallery
+initGallery();
 </script>
 <script>
 /* Start modal + WebAudio: uses explicit user gesture from the modal button */
@@ -694,9 +849,17 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); }
     if(modal && btn){
       document.body.style.overflow = 'hidden';
       btn.focus();
-      btn.addEventListener('click', ()=>{
+      btn.addEventListener('click', async ()=>{
         hideModal();
-        // user gesture: play audio
+        // user gesture: play background audio (if available)
+        const audio = document.getElementById('bg-audio');
+        if (audio) {
+          audio.muted = false;
+          audio.loop = true;
+          audio.volume = 0.85;
+          try { await audio.play(); } catch(err) { console.warn('Audio playback failed:', err); }
+        }
+        // small celebration chime via WebAudio
         playCelebration();
       }, {once:true});
       // accessibility: allow Enter/Space
@@ -709,6 +872,24 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeLightbox(); }
       document.addEventListener('keydown', interact, {once:true});
     }
   });
+})();
+</script>
+<script>
+// Small persistent audio toggle (mute/unmute)
+;(function(){
+  const toggle = document.createElement('button');
+  toggle.id = 'audio-toggle';
+  toggle.title = 'Toggle music';
+  toggle.setAttribute('aria-label','Toggle background music');
+  toggle.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:1201;background:rgba(0,0,0,0.28);color:white;border-radius:999px;width:44px;height:44px;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;';
+  toggle.textContent = '🔈';
+  toggle.addEventListener('click', ()=>{
+    const a = document.getElementById('bg-audio');
+    if(!a) return;
+    a.muted = !a.muted;
+    toggle.textContent = a.muted ? '🔈' : '🔊';
+  });
+  document.body.appendChild(toggle);
 })();
 </script>
 </body>
