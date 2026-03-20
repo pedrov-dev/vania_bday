@@ -8,17 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --terra:    #C8603A;
-      --rust:     #A8452A;
-      --sand:     #F0DFC0;
-      --cream:    #FAF5EC;
-      --sage:     #7A9E7E;
-      --moss:     #4E6B51;
-      --dusty:    #D4956A;
-      --blush:    #E8B89A;
-      --bark:     #2E1F14;
-      --warm-mid: #7D5A3C;
-      --muted:    #9A8070;
+      --terra:    #0E9AA7; /* primary teal accent */
+      --rust:     #0B7A83; /* darker teal */
+      --sand:     #DFF6F5; /* pale aqua */
+      --cream:    #F7FFFE; /* off-white with cyan hint */
+      --sage:     #6FB3A3; /* soft sea-green */
+      --moss:     #2F7360; /* deep green-teal */
+      --dusty:    #69B7C2; /* lighter teal */
+      --blush:    #9EE0D5; /* minty highlight */
+      --bark:     #062926; /* very dark teal (text) */
+      --warm-mid: #3B8B87; /* mid teal */
+      --muted:    #6D9E9A; /* muted labels */
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -54,9 +54,9 @@
     #hero::before {
       content: ''; position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse at 20% 80%, rgba(200,96,58,0.35) 0%, transparent 55%),
-        radial-gradient(ellipse at 80% 20%, rgba(122,158,126,0.2) 0%, transparent 50%),
-        radial-gradient(ellipse at 60% 70%, rgba(212,149,106,0.2) 0%, transparent 45%);
+        radial-gradient(ellipse at 20% 80%, rgba(14,154,167,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 20%, rgba(111,179,163,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 70%, rgba(155,224,213,0.2) 0%, transparent 45%);
       pointer-events: none;
     }
     .hero-inner {
@@ -290,9 +290,9 @@
     /* ── Chapter Tabs ── */
     .chapter-tabs-wrap {
       position: sticky; top: 0; z-index: 50;
-      background: rgba(250,245,236,0.92);
+      background: var(--sand);
       backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(46,31,20,0.08);
+      border-bottom: 1px solid rgba(14,154,167,0.08);
       padding: 0 24px;
     }
     .chapter-tabs {
@@ -311,7 +311,7 @@
       transition: left 0.4s cubic-bezier(0.34,1.56,0.64,1),
                   width 0.4s cubic-bezier(0.34,1.56,0.64,1);
       pointer-events: none; z-index: 0;
-      box-shadow: 0 4px 16px rgba(200,96,58,0.35);
+      box-shadow: 0 4px 16px rgba(14,154,167,0.35);
     }
 
     .chapter-tab {
@@ -373,7 +373,7 @@
     }
     .chapter-rule {
       width: 100%; height: 1px; margin-bottom: 20px;
-      background: linear-gradient(90deg, rgba(200,96,58,0.25) 0%, transparent 70%);
+      background: linear-gradient(90deg, rgba(14,154,167,0.25) 0%, transparent 70%);
     }
 
     /* ══ MESSAGE ══ */
@@ -381,8 +381,8 @@
     #message::before {
       content: ''; position: absolute; inset: 0;
       background:
-        radial-gradient(ellipse at 10% 90%, rgba(200,96,58,0.2) 0%, transparent 50%),
-        radial-gradient(ellipse at 90% 10%, rgba(122,158,126,0.15) 0%, transparent 50%);
+        radial-gradient(ellipse at 10% 90%, rgba(14,154,167,0.2) 0%, transparent 50%),
+        radial-gradient(ellipse at 90% 10%, rgba(111,179,163,0.15) 0%, transparent 50%);
       pointer-events: none;
     }
     .msg-bg-text {
@@ -431,7 +431,7 @@
 
     /* ══ FOOTER ══ */
     footer {
-      background: #1A100A; color: rgba(255,255,255,0.2);
+      background: #052624; color: rgba(255,255,255,0.2);
       text-align: center; padding: 28px 20px;
       font-size: 12px; letter-spacing: 2px; font-weight: 500;
     }
@@ -475,7 +475,7 @@
     #lightbox-prev { left: 24px; }
     #lightbox-next { right: 24px; }
     #lightbox-prev:hover, #lightbox-next:hover {
-      background: rgba(200,96,58,0.7); color: white;
+      background: rgba(14,154,167,0.7); color: white;
       transform: translateY(-50%) scale(1.1);
     }
     @media (max-width: 600px) {
@@ -638,17 +638,17 @@
   <div class="msg-bg-text">Vania</div>
   <div class="message-inner reveal">
     <span class="msg-label">For you · March 19, 2026</span>
-    <h2 class="msg-to">The one and only<br>my #1 homie</h2>
+    <h2 class="msg-to">The one and only<br>my #1 homie !!!</h2>
     <div class="msg-divider"></div>
     <p class="msg-body">
-      Yo! You have been alive for <strong>22 years</strong>. You getting up there unc. 😟 
+      YO! did you know you have been alive for <strong>22 years?</strong> You getting up there unc! 😟 
       <br /><br />
       Life is no longer what it used to be huh, but maybe that's a good thing? I think so.
-      I hope you can look back and 😊 at all that you've been through, the good and the bad, and the mid.
+      I hope you can look back and smile at all that you've been through, the good and the bad, and the mid. 😊
       <br /><br />
       I hope that going forward you continue to build the life that you desire, and live with <strong>peace, health, wisdom, and wealth.</strong>,
       Welp, keep at it man, and maybe one day you'll become enlightened and fufilled and all that jazz.
-      One step at a time and eventually you'll have climed every ⛰️ there is.
+      One step at a time and eventually you'll have climed every mountain there is. ⛰️
       <br /><br />
       Happy birthday. 🎂
     </p>
@@ -675,11 +675,11 @@
 </div>
 
 <script>
-/* ── CONFETTI (earthy tones, subtle) ── */
+/* ── CONFETTI (teal tones, subtle) ── */
 (function() {
   const canvas = document.getElementById('confetti-canvas');
   const ctx = canvas.getContext('2d');
-  const colors = ['#C8603A','#D4956A','#7A9E7E','#E8C9A0','#4E6B51','#B8956A','#F0DFC0'];
+  const colors = ['#0E9AA7','#69B7C2','#6FB3A3','#B3EFEA','#2F7360','#9EE0D5','#DFF6F5'];
   let pieces = []; let W, H;
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   resize(); window.addEventListener('resize', resize);
