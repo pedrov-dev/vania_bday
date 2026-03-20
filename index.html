@@ -505,6 +505,15 @@
     .start-modal-inner p { font-size: 20px; margin-bottom: 18px; font-weight: 600; }
     .start-btn { background: var(--terra); color: white; border: 0; padding: 12px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
     .start-btn:active { transform: translateY(1px); }
+
+    /* Spotify floating player */
+    #spotify-floating {
+      position: fixed; right: 18px; bottom: 18px; z-index: 1300;
+      width: 320px; max-width: 92%; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 12px 36px rgba(46,31,20,0.18); background: transparent;
+    }
+    #spotify-floating iframe { display:block; width:100%; height:152px; border:0; }
+    @media (max-width: 480px) { #spotify-floating { right:12px; bottom:12px; width:92%; } }
   </style>
 </head>
 <body>
@@ -1091,21 +1100,15 @@ initGallery();
 })();
 </script>
 <script>
-// Small persistent audio toggle (mute/unmute)
-;(function(){
-  const toggle = document.createElement('button');
-  toggle.id = 'audio-toggle';
-  toggle.title = 'Toggle music';
-  toggle.setAttribute('aria-label','Toggle background music');
-  toggle.style.cssText = 'position:fixed;right:18px;bottom:18px;z-index:1201;background:rgba(0,0,0,0.28);color:white;border-radius:999px;width:44px;height:44px;border:none;display:flex;align-items:center;justify-content:center;font-size:18px;';
-  toggle.textContent = '🔈';
-  toggle.addEventListener('click', ()=>{
-    const a = document.getElementById('bg-audio');
-    if(!a) return;
-    a.muted = !a.muted;
-    toggle.textContent = a.muted ? '🔈' : '🔊';
-  });
-  document.body.appendChild(toggle);
+/* Floating Spotify player (bottom-right) */
+(function(){
+  const spotifyContainer = document.createElement('div');
+  spotifyContainer.id = 'spotify-floating';
+  spotifyContainer.setAttribute('aria-hidden','false');
+  spotifyContainer.innerHTML = `
+    <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2x4teoOpt6IeucAWNiZAdX?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  `;
+  document.body.appendChild(spotifyContainer);
 })();
 </script>
 </body>
