@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vania · 22 🌿</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -498,13 +499,7 @@
       .hero-bottom-left, .hero-bottom-right { display: none; }
       .c-cell { min-width: 90px; }
     }
-    /* ══ START MODAL ══ */
-    #start-modal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(10,8,6,0.6); z-index: 1200; }
-    #start-modal.hidden { display: none; }
-    .start-modal-inner { background: var(--cream); color: var(--bark); padding: 28px 32px; border-radius: 10px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35); max-width: 92%; width: 420px; }
-    .start-modal-inner p { font-size: 20px; margin-bottom: 18px; font-weight: 600; }
-    .start-btn { background: var(--terra); color: white; border: 0; padding: 12px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
-    .start-btn:active { transform: translateY(1px); }
+    /* START MODAL removed */
 
     /* Spotify floating player */
     #spotify-floating {
@@ -520,13 +515,7 @@
 
 <canvas id="confetti-canvas"></canvas>
 
-<!-- Start modal forces a user gesture so audio can play -->
-<div id="start-modal" role="dialog" aria-modal="true">
-  <div class="start-modal-inner">
-    <p>Let's get started!</p>
-    <button id="start-btn" class="start-btn">Dive In</button>
-  </div>
-</div>
+<!-- Start modal removed -->
 
 <nav class="nav-dots">
   <div class="nav-dot active"  onclick="goTo('hero')"></div>
@@ -860,7 +849,12 @@ function movePill(index) {
   if (!tab) return;
   pillEl.style.left  = tab.offsetLeft + 'px';
   pillEl.style.width = tab.offsetWidth + 'px';
-  tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  try {
+    tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+  } catch (e) {
+    // graceful fallback for older browsers
+    tab.scrollIntoView(true);
+  }
 }
 
 function setActiveTab(index) {
@@ -1022,82 +1016,6 @@ document.addEventListener('keydown', e => {
 
 // Boot
 initGallery();
-</script>
-<script>
-/* Start modal + WebAudio: uses explicit user gesture from the modal button */
-(function(){
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  async function playCelebration(){
-    try{
-      if(!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') await ctx.resume();
-      const now = ctx.currentTime;
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5,E5,G5,C6
-      notes.forEach((f,i)=>{
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = i===1 ? 'triangle' : 'sine';
-        o.frequency.value = f;
-        g.gain.setValueAtTime(0.001, now + i*0.12);
-        g.gain.exponentialRampToValueAtTime(0.25, now + i*0.12 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.001, now + i*0.12 + 0.12);
-        o.connect(g); g.connect(ctx.destination);
-        o.start(now + i*0.12);
-        o.stop(now + i*0.12 + 0.14);
-      });
-      for(let i=0;i<6;i++){
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type='sine';
-        o.frequency.value = 1200 + Math.random()*1600;
-        const t = now + 0.05 + i*0.03;
-        g.gain.setValueAtTime(0.001, t);
-        g.gain.exponentialRampToValueAtTime(0.08, t + 0.008);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
-        o.connect(g); g.connect(ctx.destination);
-        o.start(t); o.stop(t+0.035);
-      }
-    }catch(err){ console.warn('Audio blocked or not available', err); }
-  }
-
-  function hideModal(){
-    const modal = document.getElementById('start-modal');
-    if(!modal) return;
-    modal.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  window.addEventListener('load', ()=>{
-    const modal = document.getElementById('start-modal');
-    const btn = document.getElementById('start-btn');
-    if(modal && btn){
-      document.body.style.overflow = 'hidden';
-      btn.focus();
-      btn.addEventListener('click', async ()=>{
-        hideModal();
-        // user gesture: play background audio (if available)
-        const audio = document.getElementById('bg-audio');
-        if (audio) {
-          audio.muted = false;
-          audio.loop = false;
-          audio.volume = 0.85;
-          try { await audio.play(); } catch(err) { console.warn('Audio playback failed:', err); }
-        }
-        // small celebration chime via WebAudio
-        playCelebration();
-      }, {once:true});
-      // accessibility: allow Enter/Space
-      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); btn.click(); } });
-    } else {
-      // fallback: try autoplay and bind first gesture
-      playCelebration().catch(()=>{});
-      const interact = ()=>{ playCelebration(); document.removeEventListener('click', interact); document.removeEventListener('keydown', interact); };
-      document.addEventListener('click', interact, {once:true});
-      document.addEventListener('keydown', interact, {once:true});
-    }
-  });
-})();
 </script>
 <script>
 /* Floating Spotify player (bottom-right) */
