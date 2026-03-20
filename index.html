@@ -499,23 +499,49 @@
       .hero-bottom-left, .hero-bottom-right { display: none; }
       .c-cell { min-width: 90px; }
     }
-    /* START MODAL removed */
+    /* ══ START MODAL ══ */
+    /* Ensure the start modal always covers the full viewport and sits above other stacking contexts */
+    #start-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10,8,6,0.6);
+      z-index: 999999;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+    #start-modal.hidden { display: none; }
+    .start-modal-inner { background: var(--cream); color: var(--bark); padding: 28px 32px; border-radius: 10px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.35); max-width: 92%; width: 420px; }
+    .start-modal-inner p { font-size: 20px; margin-bottom: 18px; font-weight: 600; }
+    .start-btn { background: var(--terra); color: white; border: 0; padding: 12px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+    .start-btn:active { transform: translateY(1px); }
 
-    /* Spotify floating player */
+    /* Spotify floating player (moved to top-left) */
     #spotify-floating {
-      position: fixed; right: 18px; bottom: 18px; z-index: 1300;
+      position: fixed; left: 18px; top: 18px; z-index: 1300;
       width: 320px; max-width: 92%; border-radius: 12px; overflow: hidden;
       box-shadow: 0 12px 36px rgba(46,31,20,0.18); background: transparent;
     }
     #spotify-floating iframe { display:block; width:100%; height:152px; border:0; }
-    @media (max-width: 480px) { #spotify-floating { right:12px; bottom:12px; width:92%; } }
+    @media (max-width: 480px) { #spotify-floating { left:12px; top:12px; right:auto; bottom:auto; width:92%; } }
   </style>
 </head>
 <body>
 
 <canvas id="confetti-canvas"></canvas>
 
-<!-- Start modal removed -->
+<!-- Start modal forces a user gesture so audio can play -->
+<div id="start-modal" role="dialog" aria-modal="true">
+  <div class="start-modal-inner">
+    <p>Let's start the party! 🎉</p>
+    <button id="start-btn" class="start-btn">Dive In</button>
+  </div>
+</div>
 
 <nav class="nav-dots">
   <div class="nav-dot active"  onclick="goTo('hero')"></div>
@@ -849,11 +875,14 @@ function movePill(index) {
   if (!tab) return;
   pillEl.style.left  = tab.offsetLeft + 'px';
   pillEl.style.width = tab.offsetWidth + 'px';
+  // Avoid causing a smooth scroll while the start modal is visible.
+  const modal = document.getElementById('start-modal');
+  const modalVisible = modal && !modal.classList.contains('hidden');
   try {
-    tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: modalVisible ? 'auto' : 'smooth' });
   } catch (e) {
     // graceful fallback for older browsers
-    tab.scrollIntoView(true);
+    tab.scrollIntoView(modalVisible ? false : true);
   }
 }
 
@@ -925,9 +954,13 @@ function showChapter(index) {
   // Scroll the gallery section into view (below the sticky tabs)
   const gallery = document.getElementById('gallery');
   if (gallery) {
+    // If the start modal is visible, avoid auto-scrolling to the gallery.
+    const modal = document.getElementById('start-modal');
+    const modalVisible = modal && !modal.classList.contains('hidden');
     const tabsH = document.getElementById('chapterTabsWrap').offsetHeight;
     const top = gallery.getBoundingClientRect().top + window.scrollY - tabsH;
-    window.scrollTo({ top, behavior: 'smooth' });
+    if (!modalVisible) window.scrollTo({ top, behavior: 'smooth' });
+    else window.scrollTo({ top, behavior: 'auto' });
   }
 }
 
@@ -1018,15 +1051,103 @@ document.addEventListener('keydown', e => {
 initGallery();
 </script>
 <script>
+/* Start modal + WebAudio: uses explicit user gesture from the modal button */
+(function(){
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  async function playCelebration(){
+    try{
+      if(!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') await ctx.resume();
+      const now = ctx.currentTime;
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5,E5,G5,C6
+      notes.forEach((f,i)=>{
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = i===1 ? 'triangle' : 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.001, now + i*0.12);
+        g.gain.exponentialRampToValueAtTime(0.25, now + i*0.12 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i*0.12 + 0.12);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(now + i*0.12);
+        o.stop(now + i*0.12 + 0.14);
+      });
+      for(let i=0;i<6;i++){
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type='sine';
+        o.frequency.value = 1200 + Math.random()*1600;
+        const t = now + 0.05 + i*0.03;
+        g.gain.setValueAtTime(0.001, t);
+        g.gain.exponentialRampToValueAtTime(0.08, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(t); o.stop(t+0.035);
+      }
+    }catch(err){ console.warn('Audio blocked or not available', err); }
+  }
+
+  function hideModal(){
+    const modal = document.getElementById('start-modal');
+    if(!modal) return;
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  window.addEventListener('load', ()=>{
+    const modal = document.getElementById('start-modal');
+    const btn = document.getElementById('start-btn');
+    if(modal && btn){
+      // ensure page is at the top so the modal appears over the hero
+      try { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); } catch(e){ window.scrollTo(0,0); }
+      // lock scroll on body after resetting scroll position
+      document.body.style.overflow = 'hidden';
+      // focus without causing additional scrolling (modern browsers support preventScroll)
+      try { btn.focus({ preventScroll: true }); } catch(e){ btn.focus(); }
+      btn.addEventListener('click', async ()=>{
+        hideModal();
+        // user gesture: play background audio (if available)
+        const audio = document.getElementById('bg-audio');
+        if (audio) {
+          audio.muted = false;
+          audio.loop = false;
+          audio.volume = 0.85;
+          try { await audio.play(); } catch(err) { console.warn('Audio playback failed:', err); }
+        }
+        // small celebration chime via WebAudio
+        playCelebration();
+      }, {once:true});
+      // accessibility: allow Enter/Space
+      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); btn.click(); } });
+    } else {
+      // fallback: try autoplay and bind first gesture
+      playCelebration().catch(()=>{});
+      const interact = ()=>{ playCelebration(); document.removeEventListener('click', interact); document.removeEventListener('keydown', interact); };
+      document.addEventListener('click', interact, {once:true});
+      document.addEventListener('keydown', interact, {once:true});
+    }
+  });
+})();
+</script>
+<script>
 /* Floating Spotify player (bottom-right) */
 (function(){
-  const spotifyContainer = document.createElement('div');
-  spotifyContainer.id = 'spotify-floating';
-  spotifyContainer.setAttribute('aria-hidden','false');
-  spotifyContainer.innerHTML = `
-    <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2x4teoOpt6IeucAWNiZAdX?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
-  `;
-  document.body.appendChild(spotifyContainer);
+  // Delay adding the embed until after `load` and prevent it from
+  // receiving focus so it doesn't trigger an automatic scroll.
+  function addSpotify() {
+    const spotifyContainer = document.createElement('div');
+    spotifyContainer.id = 'spotify-floating';
+    spotifyContainer.tabIndex = -1; // avoid being focusable via keyboard
+    spotifyContainer.setAttribute('aria-hidden','false');
+    spotifyContainer.innerHTML = `
+      <iframe data-testid="embed-iframe" tabindex="-1" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2x4teoOpt6IeucAWNiZAdX?utm_source=generator" width="100%" height="152" frameBorder="0" allowfullscreen allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    `;
+    document.body.appendChild(spotifyContainer);
+  }
+
+  if (document.readyState === 'complete') addSpotify();
+  else window.addEventListener('load', addSpotify);
 })();
 </script>
 </body>
