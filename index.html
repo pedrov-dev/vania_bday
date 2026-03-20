@@ -161,8 +161,13 @@
     /* ══ GALLERY ══ */
     #gallery { padding: 100px 24px; background: var(--cream); }
     .section-header {
-      display: flex; align-items: flex-end; justify-content: space-between;
-      max-width: 1160px; margin: 0 auto 56px; gap: 20px; flex-wrap: wrap;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      max-width: 1160px; margin: 0 auto 56px; gap: 28px; flex-wrap: wrap;
+    }
+    /* left/title column and right/description column split (60/40) so paragraph fills empty space */
+    .section-header > div {
+      flex: 0 1 60%;
+      min-width: 260px;
     }
     .section-label {
       font-size: 11px; font-weight: 600; letter-spacing: 5px;
@@ -175,8 +180,16 @@
     }
     .section-title em { font-style: italic; color: var(--terra); }
     .section-header-right {
-      font-size: 14px; color: var(--muted); max-width: 260px;
-      line-height: 1.6; font-weight: 400; flex-shrink: 0;
+      font-size: 15px; color: var(--muted); max-width: none;
+      line-height: 1.75; font-weight: 400; flex: 1 1 36%; text-align: left;
+    }
+    @media (max-width: 1100px) {
+      .section-header > div { flex-basis: 100%; }
+      .section-header-right { flex-basis: 100%; }
+    }
+    @media (max-width: 880px) {
+      .section-header > div { min-width: 0; }
+      .section-header-right { text-align: left; }
     }
     /* ── Masonry grid ── */
     .gallery-masonry {
@@ -556,10 +569,10 @@
     <p class="hero-eyebrow">19 · 03 · 2026 — Happy Birthday</p>
     <h1 class="hero-name">Van<em>ia</em></h1>
     <div class="hero-divider"></div>
-    <p class="hero-subtitle">Twenty-two years of being you</p>
+    <p class="hero-subtitle">Twenty-two years of pushing the rock up the hill</p>
     <div class="hero-date-line">
       <div class="dash"></div>
-      <span>Vania Raquel Ventura Gómez</span>
+      <span>Vania Raquel Ventura Gomez</span>
       <div class="dash"></div>
     </div>
   </div>
@@ -578,7 +591,7 @@
 <!-- ══ COUNTER ══ -->
 <section id="counter">
   <p class="counter-label reveal">⏱ Life Counter</p>
-  <h2 class="counter-heading reveal">Vania has been living for <em>exactly…</em></h2>
+  <h2 class="counter-heading reveal">You've been at it for a while,<em>exactly…</em></h2>
   <div class="counter-row">
     <div class="c-cell reveal"><span class="c-num" id="c-years">—</span><span class="c-lbl">Years</span></div>
     <div class="c-cell reveal"><span class="c-num" id="c-months">—</span><span class="c-lbl">Months</span></div>
@@ -597,7 +610,12 @@
       <h2 class="section-title">Vania through<br>the <em>Years</em></h2>
       <audio id="bg-audio" src="feeling22.mp3" preload="auto"></audio>
     </div>
-    <p class="section-header-right">From baby to today. Each photo, a chapter of a story that is just beginning.</p>
+    <p class="section-header-right">I took the time to go thru all the pics I have of you.
+      <br /><br />
+      Pretty nice man, childhood was cool at times, teens with a lot of discovery (G&B), and we living rn.
+      <br /><br />
+      Who knows what the future holds, but I'm sure we'll make it just fine, maybe it'll even be extraordinary. 
+    </p>
   </div>
 
   <!-- Sticky chapter tabs -->
@@ -620,22 +638,24 @@
   <div class="msg-bg-text">Vania</div>
   <div class="message-inner reveal">
     <span class="msg-label">For you · March 19, 2026</span>
-    <h2 class="msg-to">For Vania Raquel,<br>with all my love.</h2>
+    <h2 class="msg-to">The one and only<br>my #1 homie</h2>
     <div class="msg-divider"></div>
     <p class="msg-body">
-      Today we celebrate <strong>22 years</strong> of a person who makes the world a warmer, more interesting, and more vibrant place. You have grown with a
-      <strong>grace and a quiet strength</strong> that few possess — that way you have of being present, of laughing, of making everyone around you feel good.
+      Yo! You have been alive for <strong>22 years</strong>. You getting up there unc. 😟 
       <br /><br />
-      May this year bring you everything you deserve: <strong>new adventures</strong>,
-      moments you want to keep forever, and the certainty that you are deeply loved.
-      Not just today, but every day.
+      Life is no longer what it used to be huh, but maybe that's a good thing? I think so.
+      I hope you can look back and 😊 at all that you've been through, the good and the bad, and the mid.
       <br /><br />
-      Happy birthday. ✨
+      I hope that going forward you continue to build the life that you desire, and live with <strong>peace, health, wisdom, and wealth.</strong>,
+      Welp, keep at it man, and maybe one day you'll become enlightened and fufilled and all that jazz.
+      One step at a time and eventually you'll have climed every ⛰️ there is.
+      <br /><br />
+      Happy birthday. 🎂
     </p>
     <div class="msg-sig-block">
       <div class="msg-sig">
         <small>With love</small>
-        Your family 🌿
+        Pedro 😁
       </div>
       <p class="msg-date">19 · 03 · 2026<br>22 years</p>
     </div>
@@ -643,7 +663,7 @@
 </section>
 
 <footer>
-  Made with love for <em>Vania Raquel Ventura Gómez</em> &nbsp;·&nbsp; 22 years &nbsp;·&nbsp; 19.03.2026
+  Made with pretty decent amount of love for <em>Vanny</em> &nbsp;·&nbsp; 22 years &nbsp;·&nbsp; 19.03.2026
 </footer>
 
 <div id="lightbox" onclick="closeLightbox(event)">
